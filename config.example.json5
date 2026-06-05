@@ -1,0 +1,44 @@
+// Sanitised reference of the live OpenClaw config that drives this service.
+// The REAL config lives at ~/.openclaw/openclaw.json (NOT in git — it holds the
+// gateway auth token and the Telegram bot token). This file documents the keys
+// that matter for tg-claude so the setup is reproducible.
+//
+// Apply equivalent settings with `openclaw config set <path> <value>` or
+// `openclaw config patch`. See README.md for the exact commands.
+{
+  agents: {
+    defaults: {
+      // claude runs here; full read/write over all of ~/src by design.
+      workspace: "/home/liharr/src",
+      model: {
+        // CLI backend: shells out to the local `claude` binary and reuses its
+        // subscription OAuth (~/.claude). NO Anthropic API key involved.
+        primary: "claude-cli/claude-opus-4-8",
+      },
+    },
+  },
+
+  gateway: {
+    mode: "local",
+    bind: "loopback", // 127.0.0.1 only; never exposed publicly
+    port: 18789,
+    auth: { mode: "token", token: "<gateway-token — generated, kept out of git>" },
+  },
+
+  channels: {
+    telegram: {
+      enabled: true,
+      // Token kept in a 0600 file, not inline. See ~/.config/tg-claude.telegram-token.
+      tokenFile: "/home/liharr/.config/tg-claude.telegram-token",
+      // SECURITY GATE: only the operator's own Telegram numeric user id may talk
+      // to the bot. dmPolicy=allowlist + a single id in allowFrom.
+      dmPolicy: "allowlist",
+      allowFrom: ["<your-telegram-numeric-user-id>"],
+      // Don't answer in groups at all — DMs only.
+      groupPolicy: "disabled",
+    },
+  },
+
+  tools: { profile: "coding" },
+  session: { dmScope: "per-channel-peer" },
+}

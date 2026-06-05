@@ -1,0 +1,22 @@
+[Unit]
+Description=tg-claude — OpenClaw Gateway bridging Telegram to the local claude CLI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/liharr/src
+# systemd --user does NOT inherit the shell PATH. nvm node first (openclaw,
+# claude, node, npm all live here), then system bins for git/docker/psql/tmux.
+Environment=PATH=/home/liharr/.nvm/versions/node/v24.15.0/bin:/usr/local/bin:/usr/bin:/bin
+Environment=HOME=/home/liharr
+# Optional env file (cost-tracker creds for the claude-logged wrapper, etc).
+EnvironmentFile=-/home/liharr/.config/tg-claude.env
+ExecStart=/home/liharr/.nvm/versions/node/v24.15.0/bin/openclaw gateway run
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

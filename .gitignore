@@ -1,0 +1,7 @@
+# Secrets / live state never belong in git.
+.env
+.env.*
+*.telegram-token
+*-token
+# Local probe / scratch artifacts
+.write-probe.txt
