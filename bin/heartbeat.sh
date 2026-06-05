@@ -6,6 +6,11 @@
 # container as /data/heartbeats; the job id in status/cron.ts must be "tg-claude".
 set -euo pipefail
 
+# cron runs with a bare environment, so `systemctl --user` can't find the user
+# bus ("Failed to connect to bus"). Point it at the live user session bus.
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=${XDG_RUNTIME_DIR}/bus}"
+
 HEARTBEAT_DIR="${HEARTBEAT_DIR:-$HOME/.local/share/cron-heartbeats}"
 JOB="tg-claude"
 
